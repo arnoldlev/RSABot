@@ -9,8 +9,11 @@ namespace RSABot.Abstracts
     public interface ITokenService
     {
         void SaveAPIKey(string token);
-        string GetAPIKey();
+        string? GetAPIKey();
         void SaveLicenseKey(string license);
-        string GetLicenseKey();
+        string? GetLicenseKey();
+
+        void SaveSandBoxKey(string token);
+        string? GetSandBoxKey();
     }
 }

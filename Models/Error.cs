@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RSABot.Helpers;
+using Newtonsoft.Json;
 
 namespace RSABot.Models
 {
     public class Errors : IOrderResponse
     {
+        [JsonConverter(typeof(JsonArrayConvert<string>))]
         public List<string> error { get; set; }
     }
 
