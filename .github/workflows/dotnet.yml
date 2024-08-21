@@ -16,7 +16,7 @@ jobs:
     - name: Set up .NET Core
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.x' # Adjust to your .NET Core version
+        dotnet-version: '8.x' # Adjust to your .NET Core version
 
     - name: Publish .NET Project
       run: dotnet publish -c Release -o ./output
