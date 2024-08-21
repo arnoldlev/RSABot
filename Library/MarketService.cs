@@ -34,13 +34,13 @@ namespace RSABot.Library
             };
 
             var response = await _apiService.PostAsync($"accounts/{accountNumber}/orders", data);
-            ErrorRoot errorRoot = JsonConvert.DeserializeObject<ErrorRoot>(response);
+            ErrorRoot? errorRoot = JsonConvert.DeserializeObject<ErrorRoot>(response);
             if (errorRoot?.errors != null)
             {
                 return errorRoot.errors;
             }
 
-            PlaceOrderRoot rootClass = JsonConvert.DeserializeObject<PlaceOrderRoot>(response);
+            PlaceOrderRoot? rootClass = JsonConvert.DeserializeObject<PlaceOrderRoot>(response);
             if (rootClass == null || rootClass.order == null)
             {
                 return new PlaceOrder();
@@ -51,7 +51,7 @@ namespace RSABot.Library
         public async Task<Quotes> GetQuotes(string symbol)
         {
             var response = await _apiService.GetAsync($"markets/quotes?symbols={symbol}");
-            QuotesRoot rootClass = JsonConvert.DeserializeObject<QuotesRoot>(response);
+            QuotesRoot? rootClass = JsonConvert.DeserializeObject<QuotesRoot>(response);
             if (rootClass == null || rootClass.quotes == null)
             {
                 return new Quotes();
@@ -63,7 +63,7 @@ namespace RSABot.Library
         public async Task<Orders> GetOrders(string accountNumber)
         {
             var response = await _apiService.GetAsync($"accounts/{accountNumber}/orders");
-            OrdersRoot rootClass = JsonConvert.DeserializeObject<OrdersRoot>(response);
+            OrdersRoot? rootClass = JsonConvert.DeserializeObject<OrdersRoot>(response);
             if (rootClass == null || rootClass.orders == null)
             {
                 return new Orders();
@@ -75,7 +75,7 @@ namespace RSABot.Library
         public async Task<Positions> GetPositions(string accountNumber)
         {
             var response = await _apiService.GetAsync($"accounts/{accountNumber}/positions");
-            PositionsRoot rootClass = JsonConvert.DeserializeObject<PositionsRoot>(response);
+            PositionsRoot? rootClass = JsonConvert.DeserializeObject<PositionsRoot>(response);
             if (rootClass == null || rootClass.positions == null)
             {
                 return new Positions();

@@ -15,16 +15,23 @@ namespace RSABot.Library
             _apiService = apiService;
         }
 
-        public async Task<Profile> GetProfile()
+        public async Task<Profile?> GetProfile()
         {
-            var response = await _apiService.GetAsync("user/profile");
-            ProfileRoot rootClass = JsonConvert.DeserializeObject<ProfileRoot>(response);
-            if (rootClass == null)
+            try
             {
-                return new Profile() { id = "-1" };
-            }
+                var response = await _apiService.GetAsync("user/profile");
 
-            return rootClass.profile;
+                ProfileRoot? rootClass = JsonConvert.DeserializeObject<ProfileRoot>(response);
+                if (rootClass == null)
+                {
+                    return null;
+                }
+
+                return rootClass.profile;
+            } catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using RSABot.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace RSABot.Abstracts
 {
-    public interface IProfileService
+    public interface IAppConfig
     {
-       Task<Profile?> GetProfile();
+        public Environments GetEnvironment();
+        public string GetTradierURL();
     }
 }

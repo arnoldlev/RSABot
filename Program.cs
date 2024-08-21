@@ -5,52 +5,46 @@ using RSABot.Library;
 using RSABot.Models;
 using System;
 using System.Diagnostics;
+using System.Net.Security;
 using System.Runtime.Intrinsics.Arm;
 
 namespace RSABot
 {
     public class Program
     {
-        public static Profile? ProfilesCache;
-
         public async static Task Main(string[] args)
         {
+            // Get Prod or Sandbox
+            Environments? env = SetEnvironment();
+            if (env == null) return;
+
             var services = new ServiceCollection();
-            services.AddSingleton<ITokenService, TokenService>();
-            services.AddHttpClient<ApiService>((client) =>
+
+            services.AddSingleton<IAppConfig, AppConfig>(provider =>
             {
-                client.BaseAddress = new Uri("https://sandbox.tradier.com/v1/");
-                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                return new AppConfig(env.Value);
             });
 
+            services.AddSingleton<ITokenService, TokenService>();
+            services.AddHttpClient<ApiService>();
+
+            services.AddHttpClient<IValidateService, ValidateService>();
             services.AddTransient<IProfileService, ProfileService>();
             services.AddTransient<IMarketService, MarketService>();
+
             var serviceProvider = services.BuildServiceProvider();
 
-            Profile p = await ValidateToken(serviceProvider);
+
+            // Check License Key
+            bool isLicensned = await ValidateLicense(serviceProvider);
+            if (!isLicensned) return;
+
+            // Check API Token
+            Profile? p = (env == Environments.PROD) ? await ValidateAPIKey(serviceProvider) : await ValidateSandboxKey(serviceProvider);
+            if (p == null) return;
+
+            // Display Menu
             await Menu(p, serviceProvider);
-
-
-            //var data = new Dictionary<string, string>
-            //{
-            //    { "account_id", "VA4926170" },
-            //    { "class", "equity" },
-            //    { "symbol", "T" },
-            //    { "side", "buy" },
-            //    { "quantity", "1"},
-            //    { "type", "market" },
-            //    { "duration", "day" }
-            //};
-
-            //var api = serviceProvider.GetService<ApiService>();
-            //var response = await api.PostAsync("accounts/VA4926170/orders", data);
-            //Console.WriteLine(response);
-
-            // await QuoteHandler(serviceProvider, "TSLA");
-
-            //Profile p = await ProfileHandler(serviceProvider);
-            // await PositionHandler(serviceProvider, p);
-
         }
 
         public static async Task Menu(Profile p, IServiceProvider services)
@@ -274,23 +268,70 @@ namespace RSABot
             }
         }
 
-        public async static Task<Profile?> ValidateProfile(IServiceProvider services)
+        public static Environments? SetEnvironment()
         {
-            try
+            int NumOfTries = 3;
+
+            Console.WriteLine("Enter (1) for Production or (2) for SandBox:");
+            string? selection = Console.ReadLine() ?? "";
+
+            while (((selection == null || selection.Length == 0) || (!selection.Equals("1") && !selection.Equals("2"))) && NumOfTries-- > 0)
             {
-                var profileService = services.GetRequiredService<IProfileService>();
-                Profile p = await profileService.GetProfile();
-                return p;
-            } catch (Exception e)
+                Console.WriteLine("Error: Enter (1) for Production or (2) for SandBox:");
+                selection = Console.ReadLine() ?? "";
+            }
+
+            if (NumOfTries <= 0)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("Too many wrong attempts, aborting...");
                 return null;
             }
+            return selection!.Equals("1") ? Environments.PROD : Environments.SANDBOX;
+
         }
 
-        public async static Task<Profile> ValidateToken(IServiceProvider services)
+        public async static Task<bool> ValidateLicense(IServiceProvider services)
         {
+            int NumOfTries = 3;
+
+
+            var validator = services.GetService<IValidateService>() ?? throw new Exception("Error: Missing Validator Service");
             var tokens = services.GetService<ITokenService>() ?? throw new Exception("Error: Missing Token Service");
+
+            if (tokens.GetLicenseKey() == null)
+            {
+                Console.WriteLine("Please enter your License Key: ");
+                string licenseKey = Console.ReadLine() ?? "Null";
+                tokens.SaveLicenseKey(licenseKey);
+            }
+
+           // if (tokens.GetLicenseKey().Equals("1234masterkey")) return true;
+
+            bool isActive = await validator.ValidateLicense();
+
+            while (!isActive && NumOfTries-- > 0)
+            {
+                Console.WriteLine("Error: Bad or Inactive License Key. Enter License Key: ");
+                var licenseKey = Console.ReadLine() ?? "Null";
+                tokens.SaveLicenseKey(licenseKey);
+                isActive = await validator.ValidateLicense();
+            }
+
+            if (NumOfTries <= 0)
+            {
+                Console.WriteLine("Too many wrong License Key Attempts, aborting...");
+                return false;
+            }
+            return isActive;
+
+        }
+
+        public async static Task<Profile?> ValidateAPIKey(IServiceProvider services)
+        {
+            int NumOfTries = 3;
+
+            var tokens = services.GetService<ITokenService>() ?? throw new Exception("Error: Missing Token Service");
+            var profileService = services.GetRequiredService<IProfileService>() ?? throw new Exception("Error: Missing Profile Service");
 
             if (tokens.GetAPIKey() == null)
             {
@@ -298,17 +339,56 @@ namespace RSABot
                 var input = Console.ReadLine() ?? "Null";
                 tokens.SaveAPIKey(input);
             }
-            var p = await ValidateProfile(services);
 
-            while (p == null)
+            Profile? p = await profileService.GetProfile();
+
+            while (p == null && NumOfTries-- > 0)
             {
                 Console.WriteLine("Error: Bad API Token. Could not authenticate. Try Again: ");
                 var input = Console.ReadLine() ?? "Null";
                 tokens.SaveAPIKey(input);
-                p = await ValidateProfile(services);
+                p = await profileService.GetProfile();
+            }
+
+            if (NumOfTries <= 0)
+            {
+                Console.WriteLine("Too many wrong API Key Attempts, aborting...");
+                return null;
             }
             return p;
         }
-        
+
+        public async static Task<Profile?> ValidateSandboxKey(IServiceProvider services)
+        {
+            int NumOfTries = 3;
+
+            var tokens = services.GetService<ITokenService>() ?? throw new Exception("Error: Missing Token Service");
+            var profileService = services.GetRequiredService<IProfileService>() ?? throw new Exception("Error: Missing Profile Service");
+
+            if (tokens.GetSandBoxKey() == null)
+            {
+                Console.WriteLine("Enter your Sandbox API Token: ");
+                var input = Console.ReadLine() ?? "Null";
+                tokens.SaveSandBoxKey(input);
+            }
+
+            Profile? p = await profileService.GetProfile();
+
+            while (p == null && NumOfTries-- > 0)
+            {
+                Console.WriteLine("Error: Bad Sandbox API Token. Could not authenticate. Try Again: ");
+                var input = Console.ReadLine() ?? "Null";
+                tokens.SaveSandBoxKey(input);
+                p = await profileService.GetProfile();
+            }
+
+            if (NumOfTries <= 0)
+            {
+                Console.WriteLine("Too many wrong API Key Attempts, aborting...");
+                return null;
+            }
+            return p;
+        }
+
     }
 }
