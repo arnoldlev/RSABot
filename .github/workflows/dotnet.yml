@@ -19,7 +19,7 @@ jobs:
         dotnet-version: '8.x' # Adjust to your .NET Core version
 
     - name: Publish .NET Project
-      run: dotnet publish -c Release -o ./output
+      run: dotnet publish RSABot.csproj -c Release -o ./output
 
     - name: Zip output files
       run: zip -r output.zip ./output
