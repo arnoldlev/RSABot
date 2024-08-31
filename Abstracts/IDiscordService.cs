@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace RSABot.Abstracts
 {
-    public interface IProfileService
+    public interface IDiscordService
     {
-       Task<Profile?> GetProfile();
-       Task<Balance?> GetBalance(string accountNumber);
+        Task PostMessage(List<OrderSummary> orders);
     }
 }

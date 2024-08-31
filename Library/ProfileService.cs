@@ -15,7 +15,14 @@ namespace RSABot.Library
             _apiService = apiService;
         }
 
-        public async Task<Profile?> GetProfile()
+        public async Task<Balance?> GetBalance(string accountNumber)
+        {
+            var response = await _apiService.GetAsync($"accounts/{accountNumber}/balances");
+            BalanceRoot? rootClass = JsonConvert.DeserializeObject<BalanceRoot>(response);
+            return (rootClass == null) ? null : rootClass.balances;
+        }
+
+    public async Task<Profile?> GetProfile()
         {
             try
             {

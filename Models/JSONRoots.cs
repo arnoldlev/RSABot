@@ -37,6 +37,12 @@ namespace RSABot.Models
         {
             public Errors errors { get; set; }
         }
+
+        public partial class BalanceRoot
+        {
+            public Balance balances { get; set; }
+        }
+
     }
 
 }
