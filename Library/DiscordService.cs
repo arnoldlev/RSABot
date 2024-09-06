@@ -12,7 +12,7 @@ namespace RSABot.Library
         private readonly HttpClient _httpClient;
         private static readonly JsonSerializerOptions JSON_OPTIONS = new() { PropertyNamingPolicy = new LowercaseNamingPolicy() };
 
-    public DiscordService(HttpClient httpClient)
+        public DiscordService(HttpClient httpClient)
         {
             _httpClient = httpClient;
          }

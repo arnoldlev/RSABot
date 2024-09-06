@@ -1,12 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RSABot.Abstracts;
 using RSABot.Models;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RSABot.Handlers
 {
@@ -54,7 +48,7 @@ namespace RSABot.Handlers
             Console.WriteLine($"\t* Symbol: {e.symbol}");
             Console.WriteLine($"\t* Type: {e.type}");
             Console.WriteLine($"\t* Description: {e.description}");
-            Console.WriteLine($"\t* Bid: {e.bid}\n");
+            Console.WriteLine($"\t* Bid: {e.bid:C}\n");
         }
 
         public static async Task OrdersHandler(IServiceProvider services, Profile p)
@@ -65,7 +59,7 @@ namespace RSABot.Handlers
                 Orders o = await marketService.GetOrders(acc.account_number);
                 if (o.order == null || o.order.Count == 0)
                 {
-                    Console.WriteLine($"No Orders Found on Account {acc.account_number}\n");
+                    Console.WriteLine($"No Orders Found on All Accounts\n");
                     return;
                 }
 
@@ -96,8 +90,12 @@ namespace RSABot.Handlers
                 Console.WriteLine($"---- [ Positions - {acc.account_number} ] ----");
                 foreach (Position e in pos.position)
                 {
+                    
                     Quotes q = await marketService.GetQuotes(e.symbol);
-                    Console.WriteLine($"\t* {e.quantity}x | {e.symbol} | Cost: {q.quote.bid:C}");
+                    if (q != null && q.quote != null)
+                        Console.WriteLine($"\t* {e.quantity}x | {e.symbol} | Cost: {q.quote.bid:C}");
+                    else 
+                        Console.WriteLine($"\t* {e.quantity}x | {e.symbol} | Cost: Unknown");
                 }
             }
         }

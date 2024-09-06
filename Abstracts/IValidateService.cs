@@ -8,6 +8,7 @@ namespace RSABot.Abstracts
 {
     public interface IValidateService
     {
+        int GetLimit();
         Task<bool> ValidateLicense();
     }
 }

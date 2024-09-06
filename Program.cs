@@ -54,6 +54,7 @@ namespace RSABot
                 Console.WriteLine($"2. Print Order Information");
                 Console.WriteLine($"3. Print Position Information");
                 Console.WriteLine($"4. Sell all your stocks on all accounts (!) Danger // Not reversable (!)");
+                
                // Console.WriteLine($"5. Enter Discord Channel Webhook URL");
                 Console.WriteLine($"Q. Exit the application");
                 Console.WriteLine($"Info. Get stock information by entering Symbol");

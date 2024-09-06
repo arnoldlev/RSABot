@@ -16,6 +16,14 @@ namespace RSABot.Library
             httpClient.BaseAddress = new Uri("https://api.rsabot.com/"); 
         }
 
+        public int GetLimit()
+        {
+            if (_tokenService.GetLicenseKey() != null && _tokenService.GetLicenseKey().Equals("1234masterkey")) 
+                return 100;
+
+            return 75;
+        }
+
         public async Task<bool> ValidateLicense()
         {
             if (_tokenService.GetLicenseKey() == null) return false;

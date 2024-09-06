@@ -30,7 +30,7 @@ namespace RSABot.Handlers
                     if (bal != null)
                     {
                         totalBal += bal.total_equity;
-                        stringBuilder.Append($"\t* Equity: ${bal.total_equity:C}\n");
+                        stringBuilder.Append($"\t* Equity: {bal.total_equity:C}\n");
                     }
                     stringBuilder.Append($"\t* Classification: {acc.classification} \n\n");
                 }

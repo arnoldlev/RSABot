@@ -1,17 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RSABot.Abstracts;
 using RSABot.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace RSABot.Handlers
 {
     public class AuthHandler
     {
-
         public async static Task<bool> ValidateLicense(IServiceProvider services)
         {
             int NumOfTries = 3;
@@ -24,8 +19,6 @@ namespace RSABot.Handlers
                 Console.WriteLine("Please enter your License Key: ");
                 string licenseKey = Console.ReadLine() ?? "Null";
                 tokens.SaveLicenseKey(licenseKey);
-
-                Console.WriteLine(tokens.GetLicenseKey() ?? "empty");
             }
 
             bool isActive = await validator.ValidateLicense();
@@ -36,7 +29,6 @@ namespace RSABot.Handlers
                 var licenseKey = Console.ReadLine() ?? "Null";
                 tokens.SaveLicenseKey(licenseKey);
                 isActive = await validator.ValidateLicense();
-                Console.WriteLine(tokens.GetLicenseKey() ?? "empty");
             }
 
             if (NumOfTries <= 0)
