@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace RSABot
+namespace RSABot.Helpers
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum Environments : short

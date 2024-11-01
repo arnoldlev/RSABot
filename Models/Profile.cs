@@ -12,7 +12,7 @@ namespace RSABot.Models
         public string id { get; set; }
         public string name { get; set; }
 
-        [JsonConverter(typeof(JsonArrayConvert<Account>))]
+        //[JsonConverter(typeof(JsonArrayConvert<Account>))]
         public List<Account> account { get; set; }
     }
 }

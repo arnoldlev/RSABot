@@ -13,13 +13,21 @@ namespace RSABot.Library
         {
             _tokenService = tokenService;
             _httpClient = httpClient;
-            httpClient.BaseAddress = new Uri("https://6n2bf2zta1.execute-api.us-west-1.amazonaws.com/Prod/");
+            httpClient.BaseAddress = new Uri("https://api.rsabot.com/"); 
+        }
+
+        public int GetLimit()
+        {
+            if (_tokenService.GetLicenseKey() != null && _tokenService.GetLicenseKey().Equals("1234masterkey")) 
+                return 100;
+
+            return 75;
         }
 
         public async Task<bool> ValidateLicense()
         {
             if (_tokenService.GetLicenseKey() == null) return false;
-            string endpoint = $"ValidateMembership?key={_tokenService.GetLicenseKey()}";
+            string endpoint = $"validateLicense?key={_tokenService.GetLicenseKey()}";
 
             var response = await _httpClient.GetAsync(endpoint);
             if (!response.IsSuccessStatusCode)
@@ -33,7 +41,8 @@ namespace RSABot.Library
             {
                 return false;
             }
-            return Convert.ToBoolean(keys["valid"]);
+            
+            return Convert.ToBoolean(keys["isValid"]);
         }
     }
 }
